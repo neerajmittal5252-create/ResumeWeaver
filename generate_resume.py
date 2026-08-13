@@ -1,0 +1,87 @@
+import json, os, markdown
+from weasyprint import HTML
+from typing import TypedDict
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langgraph.graph import StateGraph, END
+
+load_dotenv() 
+
+llm=ChatOpenAI(
+    model="google/gemma-4-31b-it:free",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0.3,
+)
+
+class ResumeState(TypedDict):
+    job_description:str
+    resume_back:list
+    tailored_resume:str
+    company_name:str
+    pdf_path:str
+
+prompt=ChatPromptTemplate.from_template("""
+You are a resume-tailoring assistant. You will be given:
+1. A candidate's full bank of resume bullets (as JSON), each tagged with skills.
+2. A job description.
+
+Select the bullets most relevant to this job, and lightly rewrite them to mirror
+the job description's language and keywords — WITHOUT inventing any claim,
+metric, or skill not present in the source bullets.
+
+Output a clean resume draft in markdown, grouped by project, with a short
+professional summary line at the top tailored to this role.
+
+RESUME BANK:
+{resume_bank}
+
+JOB DESCRIPTION:
+{job_description}
+""")
+
+def generate_node(state:ResumeState)->ResumeState:
+    chain=prompt|llm
+    result=chain.invoke({
+        "resume_bank": json.dumps(state["resume_bank"],indent=2),
+        "job_description":state["job_description"],
+    })
+    state["tailored_resume"]=result.content
+    return state
+
+def pdf_node(state:ResumeState)->ResumeState:
+    html_content=markdown.markdown(state["tailored_resume"])
+    styled_html=f"""
+    <html><head><style>
+        body {{ font-family: 'Helvetica', sans-serif; margin: 40px; }}
+        h1, h2 {{ color: #1a1a1a; }}
+        li {{ margin-bottom: 6px; }}
+    </style></head>
+    <body>{html_content}</body></html>
+    """
+    output_path=f"/tmp/resume_{state['company_name']}.pdf"
+    HTML(string=styled_html).write_pdf(output_path)
+    state["pdf_path"]=output_path
+    return state
+
+graph=StateGraph(ResumeState)
+graph.add_node("generate",generate_node)
+graph.add_node("to_pdf",pdf_node)
+graph.set_entry_point("generate")
+graph.add_edge("generate", "to_pdf")
+graph.add_edge("to_pdf",END)
+app=graph.compile()
+
+if __name__=="__main__":
+    resume_back=json.load(open("resume_bank.json"))
+    job_description=open("temp_job.txt").read()
+    result=app.invoke({
+        "job_description":job_description,
+        "resume_bank":resume_back,
+        "tailored_resume":"",
+        "company_name":"Microsoft",
+        "pdf_path":"",
+    })
+    print(result["tailored_resume"])
+    print(result["pdf_path"])
