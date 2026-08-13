@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+langchain
+langchain-openai
+langgraph
+python-dotenv
+markdown
+weasyprint
