@@ -54,3 +54,37 @@ class ResumeAnalyzerCrew():
             process=Process.sequential,
             verbose=True,
         )
+def run_review_crew(tailored_markdown: str, job_description: str) -> dict:
+    """
+    Runs the ATS/technical/readability review crew on a tailored resume.
+    Returns a dict of scores and feedback per agent.
+    """
+    crew_instance = ResumeAnalyzerCrew().crew()
+    result = crew_instance.kickoff(inputs={
+        "resume": tailored_markdown,
+        "job_description": job_description,
+    })
+
+    ats, technical, readability = result.tasks_output
+
+    scores = {
+        "ats": ats.pydantic.score,
+        "technical": technical.pydantic.score,
+        "readability": readability.pydantic.score,
+    }
+    feedback = {
+        "ats": ats.pydantic.issues,
+        "technical": technical.pydantic.issues,
+        "readability": readability.pydantic.issues,
+    }
+    passed = {
+        "ats": ats.pydantic.pass_,
+        "technical": technical.pydantic.pass_,
+        "readability": readability.pydantic.pass_,
+    }
+
+    return {
+        "scores": scores,
+        "feedback": feedback,
+        "per_agent_passed": passed,
+    }
