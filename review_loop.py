@@ -1,3 +1,4 @@
+import json
 from generate_resume import app as resume_graph
 from resume_analyzer.crew import ResumeAnalyzerCrew
 
