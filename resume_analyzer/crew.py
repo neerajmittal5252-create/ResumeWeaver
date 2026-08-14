@@ -1,6 +1,13 @@
-from crewai import Agent, Crew, Process, Task
+import os
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from pydantic import BaseModel,Field
+
+reviewer_llm = LLM(
+    model="openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+)
 
 class ReviewResult(BaseModel):
     score: int
