@@ -10,7 +10,7 @@ ats_reviewer:
     formatting, and readability. You identify missing relevant keywords and
     ATS-related problems, but you must never recommend adding skills or
     experience that the candidate does not actually have.
-  llm: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+  llm: openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
 
 
 technical_accuracy_reviewer:
@@ -27,7 +27,7 @@ technical_accuracy_reviewer:
     never treat missing skills as evidence of dishonesty. Your priority is
     factual accuracy and preventing the resume from claiming experience that
     the candidate does not have.
-  llm: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+  llm: openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
 
 
 readability_reviewer:
@@ -44,4 +44,4 @@ readability_reviewer:
     overly long, or difficult to scan. You focus on making the candidate's
     genuine qualifications immediately clear without adding false or
     unsupported information.
-  llm: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+  llm: openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
