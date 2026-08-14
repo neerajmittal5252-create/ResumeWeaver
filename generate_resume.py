@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
+from crew import run_review_crew
 
 load_dotenv() 
 
@@ -22,6 +23,9 @@ class ResumeState(TypedDict):
     company_name:str
     pdf_path:str
     feedback:str
+    review_scores: dict 
+    review_feedback: dict 
+    review_passed: bool
 
 prompt=ChatPromptTemplate.from_template("""
 You are a resume-tailoring assistant. You will be given:
@@ -70,11 +74,25 @@ def pdf_node(state:ResumeState)->ResumeState:
     state["pdf_path"]=output_path
     return state
 
+def review_resume_node(state: ResumeState) -> ResumeState:
+    review = run_review_crew(
+        tailored_markdown=state["tailored_markdown"],
+        job_description=state["job_description"],
+    )
+    state["review_scores"] = review["scores"]
+    state["review_feedback"] = review["feedback"]
+    avg_score = sum(review["scores"].values()) / len(review["scores"])
+    state["review_passed"] = avg_score >= 70 
+    return state
+
 graph=StateGraph(ResumeState)
 graph.add_node("generate",generate_node)
+graph.add_node("review_resume", review_resume_node)
 graph.add_node("to_pdf",pdf_node)
+
 graph.set_entry_point("generate")
-graph.add_edge("generate", "to_pdf")
+graph.add_edge("generate", "review_resume") 
+graph.add_edge("review_resume", "to_pdf") 
 graph.add_edge("to_pdf",END)
 app=graph.compile()
 
