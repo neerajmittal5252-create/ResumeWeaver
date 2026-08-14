@@ -24,15 +24,15 @@ class ResumeAnalyzerCrew():
 
     @agent
     def ats_reviewer(self) -> Agent:
-        return Agent(config=self.agents_config['ats_reviewer'], verbose=True)
+        return Agent(config=self.agents_config['ats_reviewer'], llm=reviewer_llm, verbose=True)
 
     @agent
     def technical_accuracy_reviewer(self) -> Agent:
-        return Agent(config=self.agents_config['technical_accuracy_reviewer'], verbose=True)
+        return Agent(config=self.agents_config['technical_accuracy_reviewer'], llm=reviewer_llm, verbose=True)
 
     @agent
     def readability_reviewer(self) -> Agent:
-        return Agent(config=self.agents_config['readability_reviewer'], verbose=True)
+        return Agent(config=self.agents_config['readability_reviewer'], llm=reviewer_llm, verbose=True)
 
     @task
     def ats_review_task(self) -> Task:
