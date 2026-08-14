@@ -2,8 +2,7 @@ import json
 import base64
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from generate_resume import app as resume_graph
-from review_loop import generate_and_review
+from review_loop import generate_and_review, ReviewOutcome
 
 api=FastAPI(title="Resume Generator API")
 
@@ -17,6 +16,9 @@ class Resumeresponse(BaseModel):
     company_name:str
     tailored_resume_md:str
     pdf_base64:str
+    review_passed: bool
+    attempts: int
+    review: list[ReviewOutcome]
 
 @api.get("/health")
 def health_check():
@@ -50,4 +52,7 @@ def generate_resume(req: Resumerequest):
         company_name=req.company_name,
         tailored_resume_md=result["tailored_resume"],
         pdf_base64=pdf_b64,
+        review_passed=result["review_passed"],
+        attempts=attempts,
+        review=outcomes,
     )
