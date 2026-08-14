@@ -1,4 +1,5 @@
 import os
+import json
 from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from pydantic import BaseModel,Field
@@ -54,7 +55,7 @@ class ResumeAnalyzerCrew():
             process=Process.sequential,
             verbose=True,
         )
-def run_review_crew(tailored_markdown: str, job_description: str) -> dict:
+def run_review_crew(tailored_markdown: str, job_description: str, resume_bank: dict | None = None) -> dict:
     """
     Runs the ATS/technical/readability review crew on a tailored resume.
     Returns a dict of scores and feedback per agent.
@@ -63,6 +64,7 @@ def run_review_crew(tailored_markdown: str, job_description: str) -> dict:
     result = crew_instance.kickoff(inputs={
         "resume": tailored_markdown,
         "job_description": job_description,
+        "candidate_source": json.dumps(resume_bank or {}, indent=2),
     })
 
     ats, technical, readability = result.tasks_output
