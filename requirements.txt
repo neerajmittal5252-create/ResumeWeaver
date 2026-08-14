@@ -7,3 +7,4 @@ langgraph
 python-dotenv
 markdown
 weasyprint
+crewai
