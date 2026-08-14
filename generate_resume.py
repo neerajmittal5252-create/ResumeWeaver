@@ -17,7 +17,7 @@ llm=ChatOpenAI(
 
 class ResumeState(TypedDict):
     job_description:str
-    resume_back:list
+    resume_bank:list
     tailored_resume:str
     company_name:str
     pdf_path:str
@@ -78,11 +78,11 @@ graph.add_edge("to_pdf",END)
 app=graph.compile()
 
 if __name__=="__main__":
-    resume_back=json.load(open("resume_bank.json"))
+    resume_bank=json.load(open("resume_bank.json"))
     job_description=open("temp_job.txt").read()
     result=app.invoke({
         "job_description":job_description,
-        "resume_bank":resume_back,
+        "resume_bank":resume_bank,
         "tailored_resume":"",
         "company_name":"Microsoft",
         "pdf_path":"",
