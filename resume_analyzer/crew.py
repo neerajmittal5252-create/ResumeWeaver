@@ -1,0 +1,46 @@
+from crewai import Agent, Crew, Process, Task
+from crewai.project import CrewBase, agent, crew, task
+from pydantic import BaseModel
+
+class ReviewResult(BaseModel):
+    score: int
+    pass_: bool
+    issues: list[str]
+
+@CrewBase
+class ResumeReviewerCrew():
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
+
+    @agent
+    def ats_reviewer(self) -> Agent:
+        return Agent(config=self.agents_config['ats_reviewer'], verbose=True)
+
+    @agent
+    def technical_accuracy_reviewer(self) -> Agent:
+        return Agent(config=self.agents_config['technical_accuracy_reviewer'], verbose=True)
+
+    @agent
+    def readability_reviewer(self) -> Agent:
+        return Agent(config=self.agents_config['readability_reviewer'], verbose=True)
+
+    @task
+    def ats_review_task(self) -> Task:
+        return Task(config=self.tasks_config['ats_review_task'], output_pydantic=ReviewResult)
+
+    @task
+    def technical_accuracy_task(self) -> Task:
+        return Task(config=self.tasks_config['technical_accuracy_task'], output_pydantic=ReviewResult)
+
+    @task
+    def readability_task(self) -> Task:
+        return Task(config=self.tasks_config['readability_task'], output_pydantic=ReviewResult)
+
+    @crew
+    def crew(self) -> Crew:
+        return Crew(
+            agents=self.agents,
+            tasks=self.tasks,
+            process=Process.sequential,
+            verbose=True,
+        )
