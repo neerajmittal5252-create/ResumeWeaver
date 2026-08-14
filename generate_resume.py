@@ -24,7 +24,8 @@ class ResumeState(TypedDict):
     pdf_path:str
     feedback:str
     review_scores: dict 
-    review_feedback: dict 
+    review_feedback: dict
+    review_per_agent_passed: dict
     review_passed: bool
 
 prompt=ChatPromptTemplate.from_template("""
@@ -78,9 +79,11 @@ def review_resume_node(state: ResumeState) -> ResumeState:
     review = run_review_crew(
         tailored_markdown=state["tailored_markdown"],
         job_description=state["job_description"],
+        resume_bank=state["resume_bank"],
     )
     state["review_scores"] = review["scores"]
     state["review_feedback"] = review["feedback"]
+    state["review_per_agent_passed"] = review["per_agent_passed"]
     state["review_passed"] = all(review["per_agent_passed"].values())
     return state
 
@@ -99,11 +102,17 @@ if __name__=="__main__":
     resume_bank=json.load(open("resume_bank.json"))
     job_description=open("temp_job.txt").read()
     result=app.invoke({
-        "job_description":job_description,
-        "resume_bank":resume_bank,
-        "tailored_resume":"",
-        "company_name":"Microsoft",
-        "pdf_path":"",
+        "job_description": job_description,
+        "resume_bank": resume_bank,
+        "tailored_resume": "",
+        "company_name": "Microsoft",
+        "pdf_path": "",
+        "feedback": "",
+        "review_scores": {},
+        "review_feedback": {},
+        "review_per_agent_passed": {},
+        "review_passed": False,
     })
     print(result["tailored_resume"])
     print(result["pdf_path"])
+    print(result["review_scores"], result["review_passed"])
