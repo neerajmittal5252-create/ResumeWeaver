@@ -8,4 +8,3 @@ python-dotenv==1.0.1
 markdown==3.7
 weasyprint==63.1
 crewai==0.100.1
-litellm==1.57.4
