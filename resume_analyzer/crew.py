@@ -1,11 +1,14 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 class ReviewResult(BaseModel):
     score: int
-    pass_: bool
+    pass_: bool = Field(alias="pass")
     issues: list[str]
+
+    class Config:
+        populate_by_name = True
 
 @CrewBase
 class ResumeAnalyzerCrew():
