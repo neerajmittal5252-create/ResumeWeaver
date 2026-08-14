@@ -21,6 +21,7 @@ class ResumeState(TypedDict):
     tailored_resume:str
     company_name:str
     pdf_path:str
+    feedback:str
 
 prompt=ChatPromptTemplate.from_template("""
 You are a resume-tailoring assistant. You will be given:
