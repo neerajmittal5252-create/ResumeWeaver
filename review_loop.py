@@ -19,6 +19,7 @@ def generate_and_review(job_description, company_name, resume_bank, max_attempts
         review = ResumeAnalyzerCrew().crew().kickoff(inputs={
             "tailored_resume_md": result["tailored_resume"],
             "job_description": job_description,
+            "candidate_source": json.dumps(resume_bank, indent=2),
         })
         outcomes = [t.pydantic for t in review.tasks_output]
 
