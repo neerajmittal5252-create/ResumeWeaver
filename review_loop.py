@@ -1,32 +1,67 @@
 import json
-from generate_resume import app as resume_graph
-from resume_analyzer.crew import ResumeAnalyzerCrew
+import base64
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from review_loop import generate_and_review
 
-def generate_and_review(job_description, company_name, resume_bank, max_attempts=3):
-    feedback = ""
-    result = None
-    outcomes = None
+api = FastAPI(title="Resume Generator API")
+RESUME_BANK_PATH = "resume_bank.json"
 
-    for attempt in range(max_attempts):
-        result = resume_graph.invoke({
-            "job_description": job_description,
-            "resume_bank": resume_bank,
-            "company_name": company_name,
-            "tailored_resume": "",
-            "pdf_path": "",
-            "feedback": feedback,
-        })
+class Resumerequest(BaseModel):
+    job_description: str
+    company_name: str
 
-        review = ResumeAnalyzerCrew().crew().kickoff(inputs={
-            "tailored_resume_md": result["tailored_resume"],
-            "job_description": job_description,
-            "candidate_source": json.dumps(resume_bank, indent=2),
-        })
-        outcomes = [t.pydantic for t in review.tasks_output]
+class ReviewOutcome(BaseModel):
+    score: int
+    pass_: bool
+    issues: list[str]
 
-        if all(o.pass_ for o in outcomes):
-            return result, outcomes, attempt + 1
+    class Config:
+        populate_by_name = True
 
-        feedback = "\n".join(f"- {issue}" for o in outcomes for issue in o.issues)
+class Resumeresponse(BaseModel):
+    company_name: str
+    tailored_resume_md: str
+    pdf_base64: str
+    review_passed: bool
+    attempts: int
+    review: list[ReviewOutcome]
 
-    return result, outcomes, max_attempts
+@api.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+@api.post("/generate-resume", response_model=Resumeresponse)
+def generate_resume(req: Resumerequest):
+    try:
+        resume_bank = json.load(open(RESUME_BANK_PATH))
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail=f"{RESUME_BANK_PATH} not found on server")
+
+    try:
+        result, outcomes, attempts = generate_and_review(
+            job_description=req.job_description,
+            company_name=req.company_name,
+            resume_bank=resume_bank,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Resume generation failed: {str(e)}")
+
+    pdf_path = result.get("pdf_path")
+    if not pdf_path:
+        raise HTTPException(status_code=500, detail="Graph did not produce a pdf_path")
+
+    with open(pdf_path, "rb") as f:
+        pdf_bytes = f.read()
+    pdf_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
+
+    review_passed = all(o.pass_ for o in outcomes) if outcomes else False
+
+    return Resumeresponse(
+        company_name=req.company_name,
+        tailored_resume_md=result["tailored_resume"],
+        pdf_base64=pdf_b64,
+        review_passed=review_passed,
+        attempts=attempts,
+        review=[o.model_dump(by_alias=False) for o in outcomes] if outcomes else [],
+    )
