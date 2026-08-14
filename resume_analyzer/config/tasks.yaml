@@ -1,0 +1,142 @@
+ats_review_task:
+  description: >
+    Review the tailored resume against the job description specifically for
+    Applicant Tracking System (ATS) compatibility.
+
+    Check:
+    - How closely the resume matches the job title and role
+    - Relevant keywords from the job description
+    - Required technical skills that are genuinely present in the resume
+    - Relevant tools, technologies, and qualifications
+    - Whether important information is easy for an ATS to extract
+    - Standard resume section headings and structure
+    - Formatting or structure that could cause ATS parsing problems
+    - Whether the most relevant qualifications are clearly represented
+
+    Do not recommend adding skills, technologies, qualifications, or
+    experience that the candidate does not actually have.
+
+    RESUME:
+    {tailored_resume_md}
+
+    JOB DESCRIPTION:
+    {job_description}
+
+  expected_output: >
+    Return ONLY a valid JSON object with exactly these keys:
+    {
+      "score": 0-100,
+      "pass": true or false,
+      "issues": ["issue 1", "issue 2"]
+    }
+
+    The score must represent the overall ATS compatibility of the resume
+    against this specific job description.
+
+    Set "pass" to true when score >= 75.
+    Set "pass" to false when score < 75.
+
+    Keep each issue short and actionable.
+  agent: ats_reviewer
+
+
+technical_accuracy_task:
+  description: >
+    Review the tailored resume for technical and factual accuracy.
+
+    Compare every technical claim in the resume with the candidate's
+    verified source information. Identify anything that is:
+    - Invented or fabricated
+    - Exaggerated
+    - Unsupported by the candidate's source information
+    - Technically incorrect
+    - An incorrect description of a project
+    - An incorrect technology or tool claim
+    - An invented or unsupported metric
+    - An exaggerated responsibility or achievement
+
+    The job description is provided only to understand the technical
+    requirements and context of the role.
+
+    Do not assume that the candidate has a skill simply because the job
+    description requires it.
+
+    Do not flag a missing job requirement as a false claim unless the
+    resume incorrectly claims that the candidate has that skill.
+
+    Never recommend adding a technology, experience, achievement, or
+    qualification that is not supported by the candidate's source material.
+
+    RESUME:
+    {tailored_resume_md}
+
+    JOB DESCRIPTION:
+    {job_description}
+
+    CANDIDATE SOURCE MATERIAL:
+    {candidate_source}
+
+  expected_output: >
+    Return ONLY a valid JSON object with exactly these keys:
+    {
+      "score": 0-100,
+      "pass": true or false,
+      "issues": ["issue 1", "issue 2"]
+    }
+
+    The score must represent the factual and technical accuracy of the
+    tailored resume.
+
+    Set "pass" to true when score >= 75 and there are no serious
+    fabricated or unsupported claims.
+
+    Set "pass" to false when score < 75 or when the resume contains a
+    serious unsupported or fabricated claim.
+
+    Keep each issue short and specific.
+  agent: technical_accuracy_reviewer
+
+
+readability_task:
+  description: >
+    Review the tailored resume from the perspective of a technical recruiter
+    performing a quick 6-second scan.
+
+    Check:
+    - Whether the candidate's target role is immediately clear
+    - Whether the most relevant skills are easy to find
+    - Whether the most relevant projects or experience are easy to find
+    - Whether the resume has a clear information hierarchy
+    - Whether sections are ordered logically
+    - Whether bullet points are concise and easy to scan
+    - Whether achievements and impact are clearly communicated
+    - Whether important information is buried under unnecessary content
+    - Whether the resume contains repetitive, vague, or unnecessarily long content
+    - Whether the candidate's fit for the specific job is immediately understandable
+
+    Focus only on readability, clarity, skimmability, and recruiter impact.
+    Do not evaluate ATS parsing or technical truthfulness unless an issue
+    directly affects readability.
+
+    RESUME:
+    {tailored_resume_md}
+
+    JOB DESCRIPTION:
+    {job_description}
+
+  expected_output: >
+    Return ONLY a valid JSON object with exactly these keys:
+    {
+      "score": 0-100,
+      "pass": true or false,
+      "issues": ["issue 1", "issue 2"]
+    }
+
+    The score must represent how easily a recruiter can understand and
+    evaluate the candidate during a quick resume scan.
+
+    Set "pass" to true when score >= 75.
+    Set "pass" to false when score < 75.
+
+    Keep each issue short, specific, and actionable.
+  agent: readability_reviewer
