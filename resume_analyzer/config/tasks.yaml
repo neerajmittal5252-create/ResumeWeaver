@@ -126,14 +126,19 @@ readability_task:
 
   expected_output: >
     Return ONLY a valid JSON object with exactly these keys:
-    {
+    {{
       "score": 0-100,
       "pass": true or false,
       "issues": ["issue 1", "issue 2"]
-    }
+    }}
 
-    The score must represent how easily a recruiter can understand and
-    evaluate the candidate during a quick resume scan.
+    The score must represent the overall ATS compatibility of the resume
+    against this specific job description.
+
+    Set "pass" to true when score >= 75.
+    Set "pass" to false when score < 75.
+
+    Keep each issue short and actionable.
 
     Set "pass" to true when score >= 75.
     Set "pass" to false when score < 75.
