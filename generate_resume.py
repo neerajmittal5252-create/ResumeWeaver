@@ -39,6 +39,9 @@ RESUME BANK:
 
 JOB DESCRIPTION:
 {job_description}
+
+PREVIOUS REVIEW FEEDBACK (address these issues if present):
+{feedback}
 """)
 
 def generate_node(state:ResumeState)->ResumeState:
@@ -46,6 +49,7 @@ def generate_node(state:ResumeState)->ResumeState:
     result=chain.invoke({
         "resume_bank": json.dumps(state["resume_bank"],indent=2),
         "job_description":state["job_description"],
+        "feedback": state.get("feedback", "") or "None — first draft.",
     })
     state["tailored_resume"]=result.content
     return state
