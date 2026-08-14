@@ -81,8 +81,7 @@ def review_resume_node(state: ResumeState) -> ResumeState:
     )
     state["review_scores"] = review["scores"]
     state["review_feedback"] = review["feedback"]
-    avg_score = sum(review["scores"].values()) / len(review["scores"])
-    state["review_passed"] = avg_score >= 70 
+    state["review_passed"] = all(review["per_agent_passed"].values())
     return state
 
 graph=StateGraph(ResumeState)
