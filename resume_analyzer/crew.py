@@ -8,7 +8,7 @@ class ReviewResult(BaseModel):
     issues: list[str]
 
 @CrewBase
-class ResumeReviewerCrew():
+class ResumeAnalyzerCrew():
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
 
