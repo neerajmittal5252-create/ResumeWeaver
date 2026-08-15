@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
-from crew import run_review_crew
+from resume_analyzer.crew import run_review_crew
 
 load_dotenv() 
 
