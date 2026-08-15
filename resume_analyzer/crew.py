@@ -62,7 +62,7 @@ def run_review_crew(tailored_markdown: str, job_description: str, resume_bank: d
     """
     crew_instance = ResumeAnalyzerCrew().crew()
     result = crew_instance.kickoff(inputs={
-        "resume": tailored_markdown,
+        "tailored_resume_md": tailored_markdown,
         "job_description": job_description,
         "candidate_source": json.dumps(resume_bank or {}, indent=2),
     })
