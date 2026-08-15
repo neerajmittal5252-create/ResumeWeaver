@@ -77,7 +77,7 @@ def pdf_node(state:ResumeState)->ResumeState:
 
 def review_resume_node(state: ResumeState) -> ResumeState:
     review = run_review_crew(
-        tailored_markdown=state["tailored_markdown"],
+        tailored_markdown=state["tailored_resume"],
         job_description=state["job_description"],
         resume_bank=state["resume_bank"],
     )
