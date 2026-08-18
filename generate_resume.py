@@ -2,19 +2,18 @@ import json, os, markdown
 from weasyprint import HTML
 from typing import TypedDict
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
 from resume_analyzer.crew import run_review_crew
 
 load_dotenv() 
 
-llm=ChatOpenAI(
-    model="nvidia/nemotron-3-super-120b-a12b:free",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url="https://openrouter.ai/api/v1",
+llm = ChatGroq(
+    model="openai/gpt-oss-20b",
+    api_key=os.getenv("GROQ_API_KEY"),
     temperature=0.3,
-    max_tokens=2000,
+    max_tokens=2500,
 )
 
 class ResumeState(TypedDict):
