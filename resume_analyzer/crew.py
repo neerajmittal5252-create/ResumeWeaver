@@ -1,16 +1,15 @@
 import os
 import json
 from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 
-llm = ChatOpenAI(
-    model="nvidia/nemotron-3-super-120b-a12b:free",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url="https://openrouter.ai/api/v1",
+llm = ChatGroq(
+    model="openai/gpt-oss-20b",
+    api_key=os.getenv("GROQ_API_KEY"),
     temperature=0.2,
     max_tokens=1500,
-)
+
 
 class ReviewResult(BaseModel):
     score: int
