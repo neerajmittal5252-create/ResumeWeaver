@@ -1,11 +1,3 @@
-
-Claude finished the response
-Now it's clear — this is the source. crewai.LLM always routes through LiteLLM internally, no matter what model string you give it; there's no config flag to bypass it while staying inside CrewAI's Agent/Task/Crew classes. So as long as you use CrewAI here, you're using LiteLLM.
-
-Looking at what this crew actually does — three independent scoring tasks, no tool use, no delegation, no agent-to-agent handoff, Process.sequential just running them in order — CrewAI isn't buying you anything here that plain LangChain calls can't do more simply. I'd drop CrewAI entirely for this file.
-
-Here's the direct replacement using ChatOpenAI + structured output (same reliable JSON-schema approach, no LiteLLM anywhere):
-
 python
 import os
 import json
