@@ -14,7 +14,7 @@ llm=ChatOpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
     base_url="https://openrouter.ai/api/v1",
     temperature=0.3,
-    max_tokens=5000,
+    max_tokens=2000,
 )
 
 class ResumeState(TypedDict):
@@ -40,6 +40,12 @@ metric, or skill not present in the source bullets.
 
 Output a clean resume draft in markdown, grouped by project, with a short
 professional summary line at the top tailored to this role.
+
+IMPORTANT: Respond with ONLY the final markdown resume. Do NOT include any
+reasoning, thinking process, analysis, or explanation of your choices. Do not
+prefix your answer with phrases like "Here's a thinking process" or "Let me
+analyze this". Start your response directly with the resume content (e.g. the
+candidate's name as a heading).
 
 RESUME BANK:
 {resume_bank}
