@@ -66,7 +66,10 @@ def generate_node(state:ResumeState)->ResumeState:
         "job_description":state["job_description"],
         "feedback": state.get("feedback", "") or "None — first draft.",
     })
-    state["tailored_resume"]=result.content
+    content = result.content
+    if "===RESUME_START===" in content and "===RESUME_END===" in content:
+        content = content.split("===RESUME_START===", 1)[1].split("===RESUME_END===", 1)[0].strip()
+    state["tailored_resume"]=content
     return state
 
 def pdf_node(state:ResumeState)->ResumeState:
