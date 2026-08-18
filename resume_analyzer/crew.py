@@ -1,4 +1,4 @@
-python
+
 import os
 import json
 from pydantic import BaseModel, Field
@@ -282,27 +282,7 @@ def run_review_crew(tailored_markdown: str, job_description: str, resume_bank: d
         "feedback": feedback,
         "per_agent_passed": passed,
     }
-Why this is a safe drop-in:
 
-run_review_crew() keeps the exact same function signature and return shape (scores, feedback, per_agent_passed) — generate_resume.py's review_resume_node needs zero changes.
-Threshold logic (score >= 75) is preserved exactly as your YAML specified.
-Each of the three reviewer personas/instructions is carried over verbatim from your agents.yaml/tasks.yaml, just merged into one prompt per reviewer instead of split across agent backstory + task description.
-.with_structured_output() forces valid JSON matching ReviewResult, same guarantee output_pydantic gave you in CrewAI.
-Each reviewer is wrapped independently in try/except — one failing OpenRouter call won't crash the whole review step, it just surfaces as an issue for that reviewer with the real error message (repr(e)), unlike the blank error you got before.
-Cleanup once this works:
-
-Delete/stop importing resume_analyzer/config/agents.yaml and tasks.yaml (no longer read).
-Remove crewai from requirements.txt if nothing else in the project uses it — check first.
-generate_resume.py and review_loop.py need no changes — the interface is identical.
-Want me to also add basic parallelization (run all 3 reviews concurrently instead of sequentially, since they're independent) to cut review latency roughly 3x?
-
-
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
 
 
 
