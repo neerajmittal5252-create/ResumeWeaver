@@ -38,14 +38,16 @@ Select the bullets most relevant to this job, and lightly rewrite them to mirror
 the job description's language and keywords — WITHOUT inventing any claim,
 metric, or skill not present in the source bullets.
 
-Output a clean resume draft in markdown, grouped by project, with a short
-professional summary line at the top tailored to this role.
+You may think through your reasoning first if needed. When you are ready to give
+your final answer, output it between these exact markers:
 
-IMPORTANT: Respond with ONLY the final markdown resume. Do NOT include any
-reasoning, thinking process, analysis, or explanation of your choices. Do not
-prefix your answer with phrases like "Here's a thinking process" or "Let me
-analyze this". Start your response directly with the resume content (e.g. the
-candidate's name as a heading).
+===RESUME_START===
+(the clean markdown resume, grouped by project, with a short professional
+summary line at the top tailored to this role)
+===RESUME_END===
+
+Everything outside these markers is ignored, so do not put any part of the
+actual resume outside them.
 
 RESUME BANK:
 {resume_bank}
