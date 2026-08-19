@@ -14,6 +14,7 @@ llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     temperature=0.3,
     max_tokens=2500,
+    reasoning_effort="low",
 )
 
 class ResumeState(TypedDict):
@@ -41,12 +42,28 @@ You may think through your reasoning first if needed. When you are ready to give
 your final answer, output it between these exact markers:
 
 ===RESUME_START===
-(the clean markdown resume, grouped by project, with a short professional
-summary line at the top tailored to this role)
 ===RESUME_END===
 
-Everything outside these markers is ignored, so do not put any part of the
-actual resume outside them.
+Between the markers, write the ACTUAL resume content — real markdown starting
+with the candidate's name as a top-level heading, followed by a professional
+summary paragraph tailored to this role, then each project as a subheading with
+its selected bullet points underneath. Use the candidate's real name, real
+project names, and real bullet text from the RESUME BANK below. Do not write
+placeholder text, descriptions of what should go there, or instructions —
+write the finished resume itself, ready to be read by a recruiter.
+
+Example of the expected format (structure only, not real content):
+===RESUME_START===
+# Neeraj Mittal
+neeraj@email.com | github.com/neerajmittal
+
+Backend engineer with experience building scalable APIs and data pipelines,
+seeking to apply Python and cloud deployment skills to this role.
+
+## Project Name
+- Built X using Y, resulting in Z
+- Implemented A to achieve B
+===RESUME_END===
 
 RESUME BANK:
 {resume_bank}
