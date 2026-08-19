@@ -1,0 +1,859 @@
+﻿{
+  "name": "resume'",
+  "type": "SHARED",
+  "summary": "",
+  "description": "",
+  "tags": [],
+  "blogUrl": "",
+  "metadata": {
+    "externalId": "n4qtpQ4JamoPzFX3Gpdor"
+  },
+  "author": "Neeraj Mittal",
+  "categories": [],
+  "pieces": [
+    "@activepieces/piece-schedule",
+    "@activepieces/piece-http",
+    "@activepieces/piece-google-sheets",
+    "@activepieces/piece-delay",
+    "@activepieces/piece-google-drive"
+  ],
+  "flows": [
+    {
+      "displayName": "resume'",
+      "trigger": {
+        "name": "trigger",
+        "valid": true,
+        "displayName": "59 Minutes",
+        "nextAction": {
+          "name": "step_1",
+          "skip": false,
+          "type": "PIECE",
+          "valid": true,
+          "settings": {
+            "input": {
+              "url": "https://jsearch.p.rapidapi.com/search-v2",
+              "body": {},
+              "method": "GET",
+              "headers": {
+                "X-RapidAPI-Key": "API_KEY",
+                "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
+              },
+              "authType": "NONE",
+              "body_type": "none",
+              "use_proxy": false,
+              "authFields": {},
+              "failureMode": "continue_none",
+              "queryParams": {
+                "page": "1",
+                "query": "AI Engineer Intern India",
+                "num_page": "1",
+                "date_posted": "3days"
+              },
+              "proxy_settings": {},
+              "followRedirects": false,
+              "response_is_binary": false
+            },
+            "pieceName": "@activepieces/piece-http",
+            "actionName": "send_request",
+            "sampleData": {},
+            "pieceVersion": "0.11.18",
+            "propertySettings": {
+              "url": {
+                "type": "MANUAL"
+              },
+              "body": {
+                "type": "MANUAL",
+                "schema": {}
+              },
+              "method": {
+                "type": "MANUAL"
+              },
+              "headers": {
+                "type": "MANUAL"
+              },
+              "timeout": {
+                "type": "MANUAL"
+              },
+              "authType": {
+                "type": "MANUAL"
+              },
+              "body_type": {
+                "type": "MANUAL"
+              },
+              "use_proxy": {
+                "type": "MANUAL"
+              },
+              "authFields": {
+                "type": "MANUAL",
+                "schema": {}
+              },
+              "failureMode": {
+                "type": "MANUAL"
+              },
+              "queryParams": {
+                "type": "MANUAL"
+              },
+              "proxy_settings": {
+                "type": "MANUAL",
+                "schema": {}
+              },
+              "followRedirects": {
+                "type": "MANUAL"
+              },
+              "response_is_binary": {
+                "type": "MANUAL"
+              }
+            },
+            "errorHandlingOptions": {
+              "retryOnFailure": {
+                "value": false
+              },
+              "continueOnFailure": {
+                "value": false
+              }
+            }
+          },
+          "nextAction": {
+            "name": "step_2",
+            "skip": false,
+            "type": "LOOP_ON_ITEMS",
+            "valid": true,
+            "settings": {
+              "items": "{{step_1['output']['body']['data']['jobs']}}",
+              "sampleData": {}
+            },
+            "displayName": "Loop on Items",
+            "firstLoopAction": {
+              "name": "step_3",
+              "skip": false,
+              "type": "PIECE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "auth": "{{connections['MwfVTXX6DFBcJJQ8HjXJC']}}",
+                  "sheetId": 0,
+                  "headerRow": 1,
+                  "matchCase": false,
+                  "columnName": "E",
+                  "searchValue": "{{step_2['output']['item']['job_apply_link']}}",
+                  "numberOfRows": 1,
+                  "spreadsheetId": "17t70JYBbhHpxJsXCS9R96gHyI",
+                  "useHeaderNames": false,
+                  "includeTeamDrives": false
+                },
+                "pieceName": "@activepieces/piece-google-sheets",
+                "actionName": "find_rows",
+                "sampleData": {},
+                "pieceVersion": "0.16.8",
+                "propertySettings": {
+                  "sheetId": {
+                    "type": "MANUAL"
+                  },
+                  "headerRow": {
+                    "type": "MANUAL"
+                  },
+                  "matchCase": {
+                    "type": "MANUAL"
+                  },
+                  "columnName": {
+                    "type": "MANUAL"
+                  },
+                  "searchValue": {
+                    "type": "MANUAL"
+                  },
+                  "startingRow": {
+                    "type": "MANUAL"
+                  },
+                  "numberOfRows": {
+                    "type": "MANUAL"
+                  },
+                  "spreadsheetId": {
+                    "type": "MANUAL"
+                  },
+                  "useHeaderNames": {
+                    "type": "MANUAL"
+                  },
+                  "includeTeamDrives": {
+                    "type": "MANUAL"
+                  }
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": false
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "nextAction": {
+                "name": "step_4",
+                "skip": false,
+                "type": "ROUTER",
+                "valid": true,
+                "children": [
+                  {
+                    "name": "step_5",
+                    "skip": false,
+                    "type": "PIECE",
+                    "valid": true,
+                    "settings": {
+                      "input": {
+                        "url": "https://openrouter.ai/api/v1/chat/completions",
+                        "body": {
+                          "data": {
+                            "model": "nvidia/nemotron-3.5-lightning:free",
+                            "messages": [
+                              {
+                                "role": "user",
+                                "content": "You are a job relevance scorer for an engineering student focused on AI/ML, software engineering, backend development, and emerging GenAI technologies.\n\nCandidate skills/interests:\nPython, C++, Data Structures & Algorithms, Machine Learning, Deep Learning, Artificial Intelligence, Generative AI, LLMs, RAG, NLP, LangChain, LangGraph, CrewAI, FastAPI, REST APIs, SQL, PostgreSQL, Supabase, Docker, Git, GitHub, Streamlit, TensorFlow, PyTorch, NumPy, Pandas, Scikit-learn.\n\nTarget job areas:\nAI/ML Engineering, Machine Learning, Artificial Intelligence, Generative AI, LLM Engineering, RAG, NLP, Deep Learning, Data Science, Backend Engineering, Python Development, Software Engineering, and AI-focused internships.\n\nJob Title: {{step_2['output']['item']['job_title']}}\nJob Description: {{step_2['output']['item']['job_description']}}\n\nEvaluate how relevant this job is to the candidate's skills, interests, and target career areas.\n\nPrioritize:\n1. AI/ML and GenAI roles\n2. Software/Backend roles involving Python or AI\n3. Internships suitable for an engineering student\n4. Roles where the candidate can reasonably learn missing technologies\n\nDo NOT reject a job just because the candidate is missing some listed technologies. Consider overall role relevance and transferable skills.\n\nReturn ONLY valid JSON with keys: score (0-100), matching_skills (array of strings), missing_skills (array of strings), reasoning (string). No markdown, no extra text, no code fences."
+                              }
+                            ]
+                          }
+                        },
+                        "method": "POST",
+                        "headers": {
+                          "Content-Type": "application/json",
+                          "Authorization": "\nBearer YOUR_OPENROUTER_API_KEY"
+                        },
+                        "authType": "NONE",
+                        "body_type": "json",
+                        "use_proxy": false,
+                        "authFields": {},
+                        "failureMode": "continue_none",
+                        "queryParams": {},
+                        "proxy_settings": {},
+                        "followRedirects": false,
+                        "response_is_binary": false
+                      },
+                      "pieceName": "@activepieces/piece-http",
+                      "actionName": "send_request",
+                      "sampleData": {},
+                      "pieceVersion": "0.11.18",
+                      "propertySettings": {
+                        "url": {
+                          "type": "MANUAL"
+                        },
+                        "body": {
+                          "type": "MANUAL",
+                          "schema": {
+                            "data": {
+                              "type": "JSON",
+                              "required": true,
+                              "displayName": "JSON Body"
+                            }
+                          }
+                        },
+                        "method": {
+                          "type": "MANUAL"
+                        },
+                        "headers": {
+                          "type": "MANUAL"
+                        },
+                        "timeout": {
+                          "type": "MANUAL"
+                        },
+                        "authType": {
+                          "type": "MANUAL"
+                        },
+                        "body_type": {
+                          "type": "MANUAL"
+                        },
+                        "use_proxy": {
+                          "type": "MANUAL"
+                        },
+                        "authFields": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        },
+                        "failureMode": {
+                          "type": "MANUAL"
+                        },
+                        "queryParams": {
+                          "type": "MANUAL"
+                        },
+                        "proxy_settings": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        },
+                        "followRedirects": {
+                          "type": "MANUAL"
+                        },
+                        "response_is_binary": {
+                          "type": "MANUAL"
+                        }
+                      },
+                      "errorHandlingOptions": {
+                        "retryOnFailure": {
+                          "value": false
+                        },
+                        "continueOnFailure": {
+                          "value": false
+                        }
+                      }
+                    },
+                    "nextAction": {
+                      "name": "step_6",
+                      "skip": false,
+                      "type": "CODE",
+                      "valid": true,
+                      "settings": {
+                        "input": {
+                          "llmText": "{{step_5['output']['body']['choices'][0]['message']['content']}}"
+                        },
+                        "sampleData": {},
+                        "sourceCode": {
+                          "code": "export const code = async (inputs) => {\n  let raw = inputs.llmText || \"\";\n  raw = raw.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\n  try {\n    const parsed = JSON.parse(raw);\n    return {\n      score: parsed.score ?? 0,\n      matching_skills: Array.isArray(parsed.matching_skills) ? parsed.matching_skills.join(\", \") : \"\",\n      missing_skills: Array.isArray(parsed.missing_skills) ? parsed.missing_skills.join(\", \") : \"\",\n      reasoning: parsed.reasoning ?? \"\"\n    };\n  } catch (e) {\n    return {\n      score: 0,\n      matching_skills: \"\",\n      missing_skills: \"\",\n      reasoning: \"parse_error\"\n    };\n  }\n};",
+                          "packageJson": "{}"
+                        },
+                        "errorHandlingOptions": {
+                          "retryOnFailure": {
+                            "value": false
+                          },
+                          "continueOnFailure": {
+                            "value": false
+                          }
+                        }
+                      },
+                      "nextAction": {
+                        "name": "step_7",
+                        "skip": false,
+                        "type": "ROUTER",
+                        "valid": true,
+                        "children": [
+                          {
+                            "name": "step_8",
+                            "skip": false,
+                            "type": "PIECE",
+                            "valid": true,
+                            "settings": {
+                              "input": {
+                                "auth": "{{connections['MwfVTXX6DFBcJJQ8HjXJC']}}",
+                                "values": {
+                                  "values": [
+                                    "{{step_2['output']['item']['job_title']}}",
+                                    "{{step_2['output']['item']['employer_name']}}",
+                                    "{{step_2['output']['item']['job_location']}}",
+                                    "{{step_2['output']['item']['job_description']}}",
+                                    "{{step_2['output']['item']['job_apply_link']}}",
+                                    "{{step_2['output']['item']['job_posted_at_datetime_utc']}}",
+                                    "{{step_6['output']['score']}}",
+                                    "{{step_6['output']['matching_skills']}}",
+                                    "{{step_6['output']['missing_skills']}}"
+                                  ]
+                                },
+                                "sheetId": 0,
+                                "as_string": false,
+                                "spreadsheetId": "17t70JYBbhHpxJWYWXovS4jLpnCI3uCCsXCS9R96gHyI",
+                                "first_row_headers": false,
+                                "includeTeamDrives": false
+                              },
+                              "pieceName": "@activepieces/piece-google-sheets",
+                              "actionName": "insert_row",
+                              "sampleData": {},
+                              "pieceVersion": "0.16.8",
+                              "propertySettings": {
+                                "values": {
+                                  "type": "MANUAL",
+                                  "schema": {
+                                    "values": {
+                                      "type": "ARRAY",
+                                      "required": true,
+                                      "displayName": "Row Values"
+                                    }
+                                  }
+                                },
+                                "sheetId": {
+                                  "type": "MANUAL"
+                                },
+                                "as_string": {
+                                  "type": "MANUAL"
+                                },
+                                "spreadsheetId": {
+                                  "type": "MANUAL"
+                                },
+                                "first_row_headers": {
+                                  "type": "MANUAL"
+                                },
+                                "includeTeamDrives": {
+                                  "type": "MANUAL"
+                                }
+                              },
+                              "errorHandlingOptions": {
+                                "retryOnFailure": {
+                                  "value": false
+                                },
+                                "continueOnFailure": {
+                                  "value": true
+                                }
+                              }
+                            },
+                            "displayName": "Add Row",
+                            "lastUpdatedDate": "2026-08-19T04:45:01.252Z",
+                            "continueOnFailureBranches": {
+                              "onSuccess": {
+                                "name": "step_9",
+                                "skip": false,
+                                "type": "PIECE",
+                                "valid": true,
+                                "settings": {
+                                  "input": {
+                                    "url": "https://resumeweaver-ai.onrender.com/generate-resume",
+                                    "body": {
+                                      "data": {
+                                        "company_name": "{{step_2['output']['item']['employer_name']}}",
+                                        "job_description": "{{step_2['output']['item']['job_description']}}"
+                                      }
+                                    },
+                                    "method": "POST",
+                                    "headers": {
+                                      "Content-Type": "application/json"
+                                    },
+                                    "authType": "NONE",
+                                    "body_type": "json",
+                                    "use_proxy": false,
+                                    "authFields": {},
+                                    "failureMode": "continue_none",
+                                    "queryParams": {},
+                                    "proxy_settings": {},
+                                    "followRedirects": false,
+                                    "response_is_binary": false
+                                  },
+                                  "pieceName": "@activepieces/piece-http",
+                                  "actionName": "send_request",
+                                  "sampleData": {},
+                                  "pieceVersion": "0.11.18",
+                                  "propertySettings": {
+                                    "url": {
+                                      "type": "MANUAL"
+                                    },
+                                    "body": {
+                                      "type": "MANUAL",
+                                      "schema": {
+                                        "data": {
+                                          "type": "JSON",
+                                          "required": true,
+                                          "displayName": "JSON Body"
+                                        }
+                                      }
+                                    },
+                                    "method": {
+                                      "type": "MANUAL"
+                                    },
+                                    "headers": {
+                                      "type": "MANUAL"
+                                    },
+                                    "timeout": {
+                                      "type": "MANUAL"
+                                    },
+                                    "authType": {
+                                      "type": "MANUAL"
+                                    },
+                                    "body_type": {
+                                      "type": "MANUAL"
+                                    },
+                                    "use_proxy": {
+                                      "type": "MANUAL"
+                                    },
+                                    "authFields": {
+                                      "type": "MANUAL",
+                                      "schema": {}
+                                    },
+                                    "failureMode": {
+                                      "type": "MANUAL"
+                                    },
+                                    "queryParams": {
+                                      "type": "MANUAL"
+                                    },
+                                    "proxy_settings": {
+                                      "type": "MANUAL",
+                                      "schema": {}
+                                    },
+                                    "followRedirects": {
+                                      "type": "MANUAL"
+                                    },
+                                    "response_is_binary": {
+                                      "type": "MANUAL"
+                                    }
+                                  },
+                                  "errorHandlingOptions": {
+                                    "retryOnFailure": {
+                                      "value": false
+                                    },
+                                    "continueOnFailure": {
+                                      "value": false
+                                    }
+                                  }
+                                },
+                                "nextAction": {
+                                  "name": "step_10",
+                                  "skip": false,
+                                  "type": "PIECE",
+                                  "valid": true,
+                                  "settings": {
+                                    "input": {
+                                      "unit": "seconds",
+                                      "delayFor": "200"
+                                    },
+                                    "pieceName": "@activepieces/piece-delay",
+                                    "actionName": "delayFor",
+                                    "sampleData": {},
+                                    "pieceVersion": "0.3.33",
+                                    "propertySettings": {
+                                      "unit": {
+                                        "type": "MANUAL"
+                                      },
+                                      "delayFor": {
+                                        "type": "MANUAL"
+                                      },
+                                      "markdown": {
+                                        "type": "MANUAL"
+                                      }
+                                    },
+                                    "errorHandlingOptions": {
+                                      "retryOnFailure": {
+                                        "value": false
+                                      },
+                                      "continueOnFailure": {
+                                        "value": false
+                                      }
+                                    }
+                                  },
+                                  "nextAction": {
+                                    "name": "step_11",
+                                    "skip": false,
+                                    "type": "PIECE",
+                                    "valid": true,
+                                    "settings": {
+                                      "input": {
+                                        "url": "https://resumeweaver-ai.onrender.com/status/{{step_9['output']['body']['job_id']}}",
+                                        "body": {},
+                                        "method": "GET",
+                                        "headers": {},
+                                        "authType": "NONE",
+                                        "body_type": "none",
+                                        "use_proxy": false,
+                                        "authFields": {},
+                                        "failureMode": "continue_none",
+                                        "queryParams": {},
+                                        "proxy_settings": {},
+                                        "followRedirects": false,
+                                        "response_is_binary": false
+                                      },
+                                      "pieceName": "@activepieces/piece-http",
+                                      "actionName": "send_request",
+                                      "sampleData": {},
+                                      "pieceVersion": "0.11.18",
+                                      "propertySettings": {
+                                        "url": {
+                                          "type": "MANUAL"
+                                        },
+                                        "body": {
+                                          "type": "MANUAL",
+                                          "schema": {}
+                                        },
+                                        "method": {
+                                          "type": "MANUAL"
+                                        },
+                                        "headers": {
+                                          "type": "MANUAL"
+                                        },
+                                        "timeout": {
+                                          "type": "MANUAL"
+                                        },
+                                        "authType": {
+                                          "type": "MANUAL"
+                                        },
+                                        "body_type": {
+                                          "type": "MANUAL"
+                                        },
+                                        "use_proxy": {
+                                          "type": "MANUAL"
+                                        },
+                                        "authFields": {
+                                          "type": "MANUAL",
+                                          "schema": {}
+                                        },
+                                        "failureMode": {
+                                          "type": "MANUAL"
+                                        },
+                                        "queryParams": {
+                                          "type": "MANUAL"
+                                        },
+                                        "proxy_settings": {
+                                          "type": "MANUAL",
+                                          "schema": {}
+                                        },
+                                        "followRedirects": {
+                                          "type": "MANUAL"
+                                        },
+                                        "response_is_binary": {
+                                          "type": "MANUAL"
+                                        }
+                                      },
+                                      "errorHandlingOptions": {
+                                        "retryOnFailure": {
+                                          "value": false
+                                        },
+                                        "continueOnFailure": {
+                                          "value": false
+                                        }
+                                      }
+                                    },
+                                    "nextAction": {
+                                      "name": "step_14",
+                                      "skip": false,
+                                      "type": "PIECE",
+                                      "valid": true,
+                                      "settings": {
+                                        "input": {
+                                          "url": "https://resumeweaver-ai.onrender.com/download-pdf/{{step_9['output']['body']['job_id']}}",
+                                          "body": {},
+                                          "method": "GET",
+                                          "headers": {},
+                                          "authType": "NONE",
+                                          "body_type": "none",
+                                          "use_proxy": false,
+                                          "authFields": {},
+                                          "failureMode": "continue_none",
+                                          "queryParams": {},
+                                          "proxy_settings": {},
+                                          "followRedirects": false,
+                                          "response_is_binary": false
+                                        },
+                                        "pieceName": "@activepieces/piece-http",
+                                        "actionName": "send_request",
+                                        "pieceVersion": "0.11.18",
+                                        "propertySettings": {
+                                          "url": {
+                                            "type": "MANUAL"
+                                          },
+                                          "body": {
+                                            "type": "MANUAL",
+                                            "schema": {}
+                                          },
+                                          "method": {
+                                            "type": "MANUAL"
+                                          },
+                                          "headers": {
+                                            "type": "MANUAL"
+                                          },
+                                          "timeout": {
+                                            "type": "MANUAL"
+                                          },
+                                          "authType": {
+                                            "type": "MANUAL"
+                                          },
+                                          "body_type": {
+                                            "type": "MANUAL"
+                                          },
+                                          "use_proxy": {
+                                            "type": "MANUAL"
+                                          },
+                                          "authFields": {
+                                            "type": "MANUAL",
+                                            "schema": {}
+                                          },
+                                          "failureMode": {
+                                            "type": "MANUAL"
+                                          },
+                                          "queryParams": {
+                                            "type": "MANUAL"
+                                          },
+                                          "proxy_settings": {
+                                            "type": "MANUAL",
+                                            "schema": {}
+                                          },
+                                          "followRedirects": {
+                                            "type": "MANUAL"
+                                          },
+                                          "response_is_binary": {
+                                            "type": "MANUAL"
+                                          }
+                                        },
+                                        "errorHandlingOptions": {
+                                          "retryOnFailure": {
+                                            "value": false
+                                          },
+                                          "continueOnFailure": {
+                                            "value": false
+                                          }
+                                        }
+                                      },
+                                      "nextAction": {
+                                        "name": "step_13",
+                                        "skip": false,
+                                        "type": "CODE",
+                                        "valid": true,
+                                        "settings": {
+                                          "input": {
+                                            "job_id": "{{step_11['output']['body']['job_id']}}",
+                                            "company_name": "{{step_2['output']['item']['employer_name']}}"
+                                          },
+                                          "sampleData": {},
+                                          "sourceCode": {
+                                            "code": "export const code = async (inputs) => {\n  return {\n    file: `https://resumeweaver-ai.onrender.com/download-pdf/${inputs.job_id}`,\n    filename: `Resume_${inputs.company_name}.pdf`\n  };\n};",
+                                            "packageJson": "{}"
+                                          },
+                                          "errorHandlingOptions": {
+                                            "retryOnFailure": {
+                                              "value": false
+                                            },
+                                            "continueOnFailure": {
+                                              "value": false
+                                            }
+                                          }
+                                        },
+                                        "nextAction": {
+                                          "name": "step_12",
+                                          "skip": false,
+                                          "type": "PIECE",
+                                          "valid": true,
+                                          "settings": {
+                                            "input": {
+                                              "auth": "{{connections['k75SQaUaszaBWbZCKX6eq']}}",
+                                              "file": "{{step_13['output']['file']}}",
+                                              "fileName": "Resume_{{step_2['output']['item']['employer_name']}}.pdf",
+                                              "parentFolder": "1eNkeQg1BNWRxGdX-ylBIdQ_doFKS76Ze",
+                                              "include_team_drives": false
+                                            },
+                                            "pieceName": "@activepieces/piece-google-drive",
+                                            "actionName": "upload_gdrive_file",
+                                            "sampleData": {},
+                                            "pieceVersion": "0.8.4",
+                                            "propertySettings": {
+                                              "file": {
+                                                "type": "MANUAL"
+                                              },
+                                              "fileName": {
+                                                "type": "MANUAL"
+                                              },
+                                              "parentFolder": {
+                                                "type": "MANUAL"
+                                              },
+                                              "include_team_drives": {
+                                                "type": "MANUAL"
+                                              }
+                                            },
+                                            "errorHandlingOptions": {
+                                              "retryOnFailure": {
+                                                "value": false
+                                              },
+                                              "continueOnFailure": {
+                                                "value": true
+                                              }
+                                            }
+                                          },
+                                          "displayName": "Upload file",
+                                          "lastUpdatedDate": "2026-08-19T05:33:53.033Z"
+                                        },
+                                        "displayName": "Code",
+                                        "lastUpdatedDate": "2026-08-19T06:31:08.859Z"
+                                      },
+                                      "displayName": "Send HTTP request",
+                                      "lastUpdatedDate": "2026-08-19T07:11:48.697Z"
+                                    },
+                                    "displayName": "Send HTTP request",
+                                    "lastUpdatedDate": "2026-08-19T04:45:01.253Z"
+                                  },
+                                  "displayName": "Delay For",
+                                  "lastUpdatedDate": "2026-08-19T04:45:01.253Z"
+                                },
+                                "displayName": "Send HTTP request",
+                                "lastUpdatedDate": "2026-08-19T04:45:01.253Z"
+                              }
+                            }
+                          },
+                          null
+                        ],
+                        "settings": {
+                          "branches": [
+                            {
+                              "branchName": "Branch 1",
+                              "branchType": "CONDITION",
+                              "conditions": [
+                                [
+                                  {
+                                    "operator": "NUMBER_IS_GREATER_THAN",
+                                    "firstValue": "{{step_6['output']['score']}}",
+                                    "secondValue": "60"
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "branchName": "Otherwise",
+                              "branchType": "FALLBACK"
+                            }
+                          ],
+                          "sampleData": {},
+                          "executionType": "EXECUTE_FIRST_MATCH"
+                        },
+                        "displayName": "Router",
+                        "lastUpdatedDate": "2026-08-19T04:45:01.252Z"
+                      },
+                      "displayName": "Code",
+                      "lastUpdatedDate": "2026-08-19T04:45:01.252Z"
+                    },
+                    "displayName": "Send HTTP request",
+                    "lastUpdatedDate": "2026-08-19T04:45:01.252Z"
+                  },
+                  null
+                ],
+                "settings": {
+                  "branches": [
+                    {
+                      "branchName": "Branch 1",
+                      "branchType": "CONDITION",
+                      "conditions": [
+                        [
+                          {
+                            "operator": "LIST_IS_EMPTY",
+                            "firstValue": "{{step_3['output']}}"
+                          }
+                        ]
+                      ]
+                    },
+                    {
+                      "branchName": "Otherwise",
+                      "branchType": "FALLBACK"
+                    }
+                  ],
+                  "sampleData": {},
+                  "executionType": "EXECUTE_FIRST_MATCH"
+                },
+                "displayName": "Router",
+                "lastUpdatedDate": "2026-08-19T04:45:01.252Z"
+              },
+              "displayName": "Find Rows",
+              "lastUpdatedDate": "2026-08-19T04:45:01.252Z"
+            },
+            "lastUpdatedDate": "2026-08-19T04:45:01.251Z"
+          },
+          "displayName": "Send HTTP request",
+          "lastUpdatedDate": "2026-08-19T04:45:01.251Z"
+        },
+        "lastUpdatedDate": "2026-08-19T04:45:01.251Z",
+        "type": "PIECE_TRIGGER",
+        "settings": {
+          "sampleData": {},
+          "propertySettings": {
+            "minutes": {
+              "type": "MANUAL"
+            }
+          },
+          "pieceName": "@activepieces/piece-schedule",
+          "pieceVersion": "0.1.21",
+          "triggerName": "every_x_minutes",
+          "input": {
+            "minutes": 59
+          }
+        }
+      },
+      "valid": true,
+      "schemaVersion": "23",
+      "notes": []
+    }
+  ],
+  "status": "PUBLISHED"
+}
