@@ -144,7 +144,12 @@ from fastapi.responses import FileResponse
 def download_pdf(job_id: str):
     with jobs_lock:
         job = jobs.get(job_id)
-    if not job or job["status"] != JobStatus.completed:
-        raise HTTPException(status_code=404, detail="Not ready")
-    pdf_path = job["result"].pdf_base64 
-    return FileResponse(pdf_path, media_type="application/pdf", filename=f"resume.pdf")
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found — server may have restarted")
+    if job["status"] != JobStatus.completed:
+        raise HTTPException(status_code=404, detail=f"Not ready — status: {job['status']}")
+    company_name = job["result"].company_name
+    pdf_path = f"/tmp/resume_{company_name}.pdf"
+    if not os.path.exists(pdf_path):
+        raise HTTPException(status_code=404, detail="PDF file no longer on disk")
+    return FileResponse(pdf_path, media_type="application/pdf", filename="resume.pdf")
