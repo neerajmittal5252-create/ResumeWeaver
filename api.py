@@ -138,3 +138,13 @@ def get_status(job_id: str):
         result=job["result"],
         error=job["error"],
     )
+from fastapi.responses import FileResponse
+
+@api.get("/download-pdf/{job_id}")
+def download_pdf(job_id: str):
+    with jobs_lock:
+        job = jobs.get(job_id)
+    if not job or job["status"] != JobStatus.completed:
+        raise HTTPException(status_code=404, detail="Not ready")
+    pdf_path = job["result"].pdf_base64 
+    return FileResponse(pdf_path, media_type="application/pdf", filename=f"resume.pdf")
