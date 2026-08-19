@@ -27,6 +27,7 @@ class EducationEntry(BaseModel):
 class ProjectEntry(BaseModel):
     title: str
     link_text: str = ""
+    link_url: str = ""   # NEW: real URL for the project link
     dates: str = ""
     bullets: list[str]
 
@@ -82,7 +83,7 @@ Return ONLY a valid JSON object with exactly this structure:
     {{"institution": "...", "degree": "...", "location": "...", "dates": "..."}}
   ],
   "projects": [
-    {{"title": "...", "link_text": "[GitHub]", "dates": "...", "bullets": ["...", "..."]}}
+    {{"title": "...", "link_text": "GitHub", "link_url": "https://github.com/...", "dates": "...", "bullets": ["...", "..."]}}
   ],
   "skills": {{"Category Name": "comma, separated, skills"}},
   "coursework": "comma separated relevant coursework",
@@ -91,7 +92,8 @@ Return ONLY a valid JSON object with exactly this structure:
 
 Use only real information from the RESUME BANK — do not fabricate institutions,
 dates, metrics, or skills. If a field genuinely has no source data, use an empty
-string or empty list rather than inventing content.
+string or empty list rather than inventing content. link_url should be the real
+project URL from the RESUME BANK if available, otherwise leave it empty.
 
 RESUME BANK:
 {resume_bank}
@@ -153,6 +155,25 @@ def generate_node(state: ResumeState) -> ResumeState:
     state["tailored_resume"] = resume_to_markdown(result)
     return state
 
+def make_contact_html(r: ResumeContent) -> str:
+    parts = []
+    if r.phone:
+        parts.append(r.phone)
+    if r.email:
+        parts.append(f'<a href="mailto:{r.email}">{r.email}</a>')
+    if r.github:
+        url = r.github if r.github.startswith("http") else f"https://{r.github}"
+        parts.append(f'<a href="{url}">{r.github}</a>')
+    if r.linkedin:
+        url = r.linkedin if r.linkedin.startswith("http") else f"https://{r.linkedin}"
+        parts.append(f'<a href="{url}">{r.linkedin}</a>')
+    return " | ".join(parts)
+
+def make_link_html(p: ProjectEntry) -> str:
+    if p.link_url:
+        return f'<a href="{p.link_url}">{p.link_text}</a>'
+    return p.link_text
+
 def pdf_node(state: ResumeState) -> ResumeState:
     r = ResumeContent(**state["resume_obj"])
 
@@ -164,14 +185,14 @@ def pdf_node(state: ResumeState) -> ResumeState:
     """ for e in r.education)
 
     proj_html = "".join(f"""
-        <div class="proj-title">{p.title} <span class="links">{p.link_text}</span>
+        <div class="proj-title">{p.title} <span class="links">{make_link_html(p)}</span>
             <span class="right">{p.dates}</span></div>
         <ul>{''.join(f'<li>{b}</li>' for b in p.bullets)}</ul>
     """ for p in r.projects)
 
     skills_html = "".join(f"<p><strong>{k}:</strong> {v}</p>" for k, v in r.skills.items())
     achievements_html = "".join(f"<li>{a}</li>" for a in r.achievements)
-    contact_line = " | ".join(x for x in [r.phone, r.email, r.github, r.linkedin] if x)
+    contact_line = make_contact_html(r)   
 
     education_section = f"<h2>Education</h2>{edu_html}" if r.education else ""
     projects_section = f"<h2>Projects</h2>{proj_html}" if r.projects else ""
