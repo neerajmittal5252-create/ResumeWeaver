@@ -11,7 +11,7 @@ llm = ChatGroq(
     max_tokens=1500,
     reasoning_effort="low",
 )
-    
+
 class ReviewResult(BaseModel):
     score: int
     pass_: bool = Field(alias="pass")
@@ -19,7 +19,7 @@ class ReviewResult(BaseModel):
     class Config:
         populate_by_name = True
 
-structured_llm = llm.with_structured_output(ReviewResult,method="json_mode")
+structured_llm = llm.with_structured_output(ReviewResult, method="json_mode")
 
 ATS_PROMPT = """You are an expert ATS resume reviewer and technical recruiter specializing
 in AI/ML, software engineering, backend development, and GenAI roles. You understand how
@@ -51,8 +51,8 @@ RESUME:
 JOB DESCRIPTION:
 {job_description}
 
-Respond with ONLY the structured result (score, pass, issues). Do not include any reasoning
-or explanation outside of the issues list."""
+Respond with ONLY a valid JSON object containing exactly these keys: "score" (integer),
+"pass" (boolean), "issues" (array of strings). Output valid JSON and nothing else."""
 
 TECHNICAL_PROMPT = """You are a senior technical hiring manager with expertise in AI/ML,
 Generative AI, LLMs, backend engineering, and software development. Your job is to carefully
@@ -90,8 +90,8 @@ JOB DESCRIPTION:
 CANDIDATE SOURCE MATERIAL:
 {candidate_source}
 
-Respond with ONLY the structured result (score, pass, issues). Do not include any reasoning
-or explanation outside of the issues list."""
+Respond with ONLY a valid JSON object containing exactly these keys: "score" (integer),
+"pass" (boolean), "issues" (array of strings). Output valid JSON and nothing else."""
 
 READABILITY_PROMPT = """You are an experienced technical recruiter who has reviewed thousands
 of resumes for AI/ML, software engineering, backend, and GenAI positions. You understand that
@@ -126,8 +126,8 @@ RESUME:
 JOB DESCRIPTION:
 {job_description}
 
-Respond with ONLY the structured result (score, pass, issues). Do not include any reasoning
-or explanation outside of the issues list."""
+Respond with ONLY a valid JSON object containing exactly these keys: "score" (integer),
+"pass" (boolean), "issues" (array of strings). Output valid JSON and nothing else."""
 
 REVIEW_PROMPTS = {
     "ats": ATS_PROMPT,
@@ -156,6 +156,7 @@ def run_review_crew(tailored_markdown: str, job_description: str, resume_bank: d
             parsed = chain.invoke(inputs[key])
             if parsed is None:
                 raise ValueError("Model returned no parseable structured output")
+            parsed.pass_ = parsed.score >= 75  # enforce threshold ourselves, don't trust model's own pass/fail
             results[key] = parsed
         except Exception as e:
             results[key] = ReviewResult(score=0, pass_=False, issues=[f"Reviewer error: {repr(e)}"])
