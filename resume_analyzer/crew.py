@@ -9,6 +9,7 @@ llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     temperature=0.2,
     max_tokens=1500,
+    reasoning_effort="low",
 )
     
 class ReviewResult(BaseModel):
@@ -18,7 +19,7 @@ class ReviewResult(BaseModel):
     class Config:
         populate_by_name = True
 
-structured_llm = llm.with_structured_output(ReviewResult)
+structured_llm = llm.with_structured_output(ReviewResult,method="json_mode")
 
 ATS_PROMPT = """You are an expert ATS resume reviewer and technical recruiter specializing
 in AI/ML, software engineering, backend development, and GenAI roles. You understand how
