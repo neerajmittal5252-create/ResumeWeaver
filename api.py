@@ -4,6 +4,7 @@ import uuid
 import threading
 from datetime import datetime, timezone
 from enum import Enum
+import os
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -148,9 +149,12 @@ def download_pdf(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found — server may have restarted")
     if job["status"] != JobStatus.completed:
         raise HTTPException(status_code=404, detail=f"Not ready — status: {job['status']}")
+
     result = job["result"]
     company_name = result["company_name"] if isinstance(result, dict) else result.company_name
-    pdf_path = f"/tmp/resume_{company_name}.pdf"
+
+    pdf_path = f"/tmp/resume_{company_name}.pdf" 
     if not os.path.exists(pdf_path):
         raise HTTPException(status_code=404, detail="PDF file no longer on disk")
+
     return FileResponse(pdf_path, media_type="application/pdf", filename="resume.pdf")
