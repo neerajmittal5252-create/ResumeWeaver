@@ -148,7 +148,8 @@ def download_pdf(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found — server may have restarted")
     if job["status"] != JobStatus.completed:
         raise HTTPException(status_code=404, detail=f"Not ready — status: {job['status']}")
-    company_name = job["result"].company_name
+    result = job["result"]
+    company_name = result["company_name"] if isinstance(result, dict) else result.company_name
     pdf_path = f"/tmp/resume_{company_name}.pdf"
     if not os.path.exists(pdf_path):
         raise HTTPException(status_code=404, detail="PDF file no longer on disk")
